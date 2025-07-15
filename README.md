@@ -1,4 +1,4 @@
-# Solution Description Generator
+# Dynamics 365 - Solution Description Generator
 
 This Python script (`solution-desc.py`) is a utility designed to parse a Microsoft Dynamics 365 or Power Apps solution file (`.zip`). It extracts detailed information about the entities and their attributes contained within the solution and generates a human-readable description.
 
