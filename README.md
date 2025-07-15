@@ -9,9 +9,10 @@ The script performs the following actions:
 2.  Extracts the contents of the zip file into a temporary directory.
 3.  Locates the `customizations.xml` file within the extracted contents.
 4.  Parses the XML file to retrieve a list of all entities.
-5.  For each entity, it lists all its attributes.
+5.  For each entity, it lists all its attributes and forms.
 6.  The output includes the entity's display name and logical name, as well as each attribute's display name, logical name, and data type.
-7.  The results are printed to the console and saved to a text file named after the original solution file (e.g., `MySolution.txt`).
+7.  For each form, the output includes the form's name, description, and type (e.g., main, quick create).
+8.  The results are printed to the console and saved to a text file named after the original solution file (e.g., `MySolution.txt`).
 
 This provides a quick and easy way to get a high-level overview of the data model customizations within a solution package.
 

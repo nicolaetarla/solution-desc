@@ -29,23 +29,53 @@ def parse_customizations(xml_file, output_file):
             output_file.write(line + '\n')
 
             attributes = entity.findall('.//attribute')
-            for attribute in attributes:
-                name_tag = attribute.find('Name')
-                type_tag = attribute.find('Type')
-                displayname_tag = attribute.find('displaynames/displayname')
+            if attributes:
+                line = "  Fields:"
+                print(line)
+                output_file.write(line + '\n')
+                for attribute in attributes:
+                    name_tag = attribute.find('Name')
+                    type_tag = attribute.find('Type')
+                    displayname_tag = attribute.find('displaynames/displayname')
 
-                if name_tag is not None and name_tag.text is not None and type_tag is not None and type_tag.text is not None:
-                    name = name_tag.text
-                    type = type_tag.text
-                    display_name = name
-                    if displayname_tag is not None:
-                        description = displayname_tag.get('description')
-                        if description:
-                            display_name = description
-                    
-                    line = f"  - {display_name} [{name}] ({type})"
+                    if name_tag is not None and name_tag.text is not None and type_tag is not None and type_tag.text is not None:
+                        name = name_tag.text
+                        type = type_tag.text
+                        display_name = name
+                        if displayname_tag is not None:
+                            description = displayname_tag.get('description')
+                            if description:
+                                display_name = description
+                        
+                        line = f"    - {display_name} [{name}] ({type})"
+                        print(line)
+                        output_file.write(line + '\n')
+
+            forms_tags = entity.findall('FormXml/forms')
+            if forms_tags:
+                has_systemforms = any(ft.find('systemform') is not None for ft in forms_tags)
+                if has_systemforms:
+                    line = "  Forms:"
                     print(line)
                     output_file.write(line + '\n')
+
+                for forms_tag in forms_tags:
+                    form_type = forms_tag.get('type')
+                    for systemform in forms_tag.findall('systemform'):
+                        # Correctly navigate to the LocalizedName and Description tags
+                        form_name_tag = systemform.find('LocalizedNames/LocalizedName')
+                        description_tag = systemform.find('Descriptions/Description')
+
+                        form_name = form_name_tag.get('description') if form_name_tag is not None else "N/A"
+                        description = description_tag.get('description') if description_tag is not None else ""
+                        if not description:
+                            description = "[no description]"
+
+                        if form_name != "N/A":
+                            line = f"    - {form_name} - {description} ({form_type})"
+                            print(line)
+                            output_file.write(line + '\n')
+
 
 def find_customizations_xml(directory):
     """
