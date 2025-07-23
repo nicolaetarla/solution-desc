@@ -3,6 +3,7 @@ import sys
 import zipfile
 import os
 import shutil
+import re
 
 def parse_customizations(xml_file, output_file):
     """
@@ -77,6 +78,67 @@ def parse_customizations(xml_file, output_file):
                             output_file.write(line + '\n')
 
 
+def parse_web_resources(extract_dir, output_file):
+    """
+    Finds and lists all files within the 'WebResources' directory,
+    and for each file, attempts to parse and list JavaScript functions.
+
+    Args:
+        extract_dir (str): The path to the directory where the zip was extracted.
+        output_file: File handle to write the output to.
+    """
+    web_resources_dir = find_web_resources_dir(extract_dir)
+    if web_resources_dir:
+        all_files = []
+        for root, _, files in os.walk(web_resources_dir):
+            for file in files:
+                relative_path = os.path.relpath(os.path.join(root, file), web_resources_dir)
+                all_files.append(relative_path)
+        
+        if all_files:
+            line = "\nWeb Resources:"
+            print(line)
+            output_file.write(line + '\n')
+
+            for file_path in sorted(all_files):
+                line = f"  - {file_path}"
+                print(line)
+                output_file.write(line + '\n')
+
+                full_path = os.path.join(web_resources_dir, file_path)
+                try:
+                    with open(full_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
+                        content = f.read()
+                        functions = re.findall(r"function\s+([a-zA-Z0-9_]+)\s*\(", content)
+                        if functions:
+                            for func_name in sorted(list(set(functions))):
+                                line = f"    - {func_name} (function)"
+                                print(line)
+                                output_file.write(line + '\n')
+                        else:
+                            line = "    - (No functions found)"
+                            print(line)
+                            output_file.write(line + '\n')
+                except (OSError, UnicodeDecodeError):
+                    line = "    - (Not a text file or unreadable)"
+                    print(line)
+                    output_file.write(line + '\n')
+                except Exception as e:
+                    line = f"    - Error processing file: {e}"
+                    print(line)
+                    output_file.write(line + '\n')
+
+
+def find_web_resources_dir(directory):
+    """
+    Finds the WebResources directory in a case-insensitive manner, returning the first match.
+    """
+    for root, dirs, files in os.walk(directory):
+        for d in dirs:
+            if d.lower() == "webresources":
+                return os.path.join(root, d)
+    return None
+
 def find_customizations_xml(directory):
     """
     Finds the customizations.xml file in a directory.
@@ -111,6 +173,7 @@ def main():
         if customizations_xml_path:
             with open(output_filename, 'w') as output_file:
                 parse_customizations(customizations_xml_path, output_file)
+                parse_web_resources(extract_dir, output_file)
             print(f"\nOutput also written to {output_filename}")
         else:
             print("Error: customizations.xml not found in the zip file.")
