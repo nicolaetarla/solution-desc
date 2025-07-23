@@ -139,6 +139,46 @@ def find_web_resources_dir(directory):
                 return os.path.join(root, d)
     return None
 
+
+def find_workflows_dir(directory):
+    """
+    Finds the Workflows directory in a case-insensitive manner, returning the first match.
+    """
+    for root, dirs, files in os.walk(directory):
+        for d in dirs:
+            if d.lower() == "workflows":
+                return os.path.join(root, d)
+    return None
+
+
+def parse_workflows(extract_dir, output_file):
+    """
+    Finds and lists all files within the 'Workflows' directory.
+
+    Args:
+        extract_dir (str): The path to the directory where the zip was extracted.
+        output_file: File handle to write the output to.
+    """
+    workflows_dir = find_workflows_dir(extract_dir)
+    if workflows_dir:
+        all_files = []
+        for root, _, files in os.walk(workflows_dir):
+            for file in files:
+                if file.endswith('.xaml'):
+                    relative_path = os.path.relpath(os.path.join(root, file), workflows_dir)
+                    all_files.append(relative_path)
+        
+        if all_files:
+            line = "\nWorkflows:"
+            print(line)
+            output_file.write(line + '\n')
+
+            for file_path in sorted(all_files):
+                line = f"  - {file_path}"
+                print(line)
+                output_file.write(line + '\n')
+
+
 def find_customizations_xml(directory):
     """
     Finds the customizations.xml file in a directory.
@@ -174,11 +214,13 @@ def main():
             with open(output_filename, 'w') as output_file:
                 parse_customizations(customizations_xml_path, output_file)
                 parse_web_resources(extract_dir, output_file)
+                parse_workflows(extract_dir, output_file)
             print(f"\nOutput also written to {output_filename}")
         else:
             print("Error: customizations.xml not found in the zip file.")
             
         shutil.rmtree(extract_dir)
+
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ The script performs the following actions:
 6.  The output includes the entity's display name and logical name, as well as each attribute's display name, logical name, and data type.
 7.  For each form, the output includes the form's name, description, and type (e.g., main, quick create).
 8.  It also locates the `WebResources` folder and lists all the files within it. For each JavaScript file, it parses the content and lists all the declared functions.
+9.  It locates the `Workflows` folder and lists all the `.xaml` files within it.
 9.  The results are printed to the console and saved to a text file named after the original solution file (e.g., `MySolution.txt`).
 
 This provides a quick and easy way to get a high-level overview of the data model customizations and custom code within a solution package.
